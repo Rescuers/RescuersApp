@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "132828975842",
+    "firebase_url": "https://rescuers-1f447.firebaseio.com",
+    "project_id": "rescuers-1f447",
+    "storage_bucket": "rescuers-1f447.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:132828975842:android:52be4d0e3d378833f884bb",
+        "android_client_info": {
+          "package_name": "com.rescuers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "132828975842-jd8r71bqui19geo3q8j5fn95t9s27omn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDS8CtRVRI0lG9AHACkCnzlAXEycKeNveM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "132828975842-jd8r71bqui19geo3q8j5fn95t9s27omn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

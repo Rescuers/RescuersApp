@@ -2,180 +2,149 @@
  * Sample React Native App
  * https://github.com/facebook/react-native
  *
+ * Generated with the TypeScript template
+ * https://github.com/react-native-community/react-native-template-typescript
+ *
  * @format
- * @flow
  */
 
-import React from 'react';
+import React, { Component } from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  Image,
-  FlatList,
-  TouchableOpacity,
-  Alert
+  Alert,
+  AsyncStorage,
 } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import firebase from 'react-native-firebase';
+import { createAppContainer } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
 
- /**
-     * Renders the eventTypeIcon if exists
-     */
-    const renderObjectIcon = () => {
-      //  const { eventTypeIcon } = this.props;
-        // return (eventTypeIcon)
-        //     ? <BaseIcon style={styles.imageStyle} source={{ uri: eventTypeIcon }}></BaseIcon>
-        //     : <View />
-      return <Image  style={styles.imageStyle} source={{uri : "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"}}/>
+import LandingPage from './src/LandingPage';
+
+
+const MainNavigator = createStackNavigator({
+  LandingPage: { screen: LandingPage }
+},
+  {
+    initialRouteName: 'LandingPage',
+  });
+
+
+
+export default class App extends Component {
+
+  checkPermission = async () => {
+    const enabled = await firebase.messaging().hasPermission();
+    if (enabled) {
+      this.getToken();
+    }
+    else {
+      this.requestPermission();
+    };
   }
 
-  const DATA = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      location: 'First Item',
-      category: 'Floods',
-      objectType: 'person',
-      time : '12/11/2019 10:10AM',
-      status: 'closed'
-    },
-    {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      location: 'Second Item',
-      category: 'Floods',
-      objectType: 'person',
-      time : '12/11/2019 10:10AM',
-      status: 'open'
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72',
-      location: 'Third Item',
-      category: 'Floods',
-      objectType: 'person',
-      time : '11/12/2019 10:10AM',
-      status: 'closed'
-    },
-  ];
+  //2
+  requestPermission = async () => {
+    try {
+      await firebase.messaging().requestPermission();
+      // User has authorised
+      this.getToken();
+    } catch (error) {
+      // User has rejected permissions
+      console.log('permission rejected');
+    }
+  }
+  notificationListener: () => any;
+  notificationOpenedListener: () => any;
+  messageListener: () => any;
 
-const App: () => React$Node = () => {
-  
-  const onPress = () => {
+  componentDidMount() {
+    this.checkPermission();
+    this.createNotificationListeners();
+  }
+
+  //Remove listeners allocated in createNotificationListeners()
+  componentWillUnmount() {
+    this.notificationListener();
+    this.notificationOpenedListener();
+  }
+
+  async getToken() {
+    let fcmToken = await AsyncStorage.getItem('fcmToken');
+    if (!fcmToken) {
+      fcmToken = await firebase.messaging().getToken();
+      if (fcmToken) {
+        // user has a device token
+        await AsyncStorage.setItem('fcmToken', fcmToken);
+      }
+    }
+    console.log("fcmToken", fcmToken);
+  }
+
+  createNotificationListeners = async () => {
+    /*
+    * Triggered when a particular notification has been received in foreground
+    * */
+    this.notificationListener = firebase.notifications().onNotification((notification) => {
+      console.log("Inside onNotification::", notification);
+      const { title, body } = notification;
+      this.showAlert(title, body);
+    });
+
+    /*
+    * If your app is in background, you can listen for when a notification is clicked / tapped / opened as follows:
+    * */
+    this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
+      console.log("Inside onNotificationOpened::", notificationOpen);
+      const { title, body } = notificationOpen.notification;
+      this.showAlert(title, body);
+    });
+
+    /*
+    * If your app is closed, you can check if it was opened by a notification being clicked / tapped / opened as follows:
+    * */
+    const notificationOpen = await firebase.notifications().getInitialNotification();
+    if (notificationOpen) {
+      console.log("Inside onNotificationOpened::", notificationOpen);
+      const { title, body } = notificationOpen.notification;
+      this.showAlert(title, body);
+    }
+    /*
+    * Triggered for data only payload in foreground
+    * */
+    this.messageListener = firebase.messaging().onMessage((message) => {
+      console.log("Inside onNotificationOpened::", message);
+      //process data message
+      console.log(JSON.stringify(message));
+    });
+  }
+
+  showAlert = (title, body) => {
     Alert.alert(
-      "Confirm",
-      "Do you really want to delete?",
+      title, body,
       [
-          {
-              text: "Cancel",
-              style: 'cancel',
-          },
-          {
-              text: "Ok", 
-              onPress: async () => {
-                //TODO: delete the item from list
-              }
-          },
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
       ],
       { cancelable: false },
-  );
-  }
-
-  function Item( { item } ) {
-    return (
-      <View style={styles.item}>
-        <View style={{flexDirection: 'row', paddingVertical: 3}}>
-          <Image style={{width: 20, height: 20, resizeMode: 'contain'}} source={require('./images/icon_location.png')}/>
-          <Text style={styles.textStyle}>{item.location}</Text>
-        </View>
-        {/* <View style={{flexDirection: 'row', paddingVertical: 3}}>
-          <Image style={{width: 20, height: 20, resizeMode: 'contain'}} source={require('./images/icon_category.png')}/>
-          <Text style={styles.textStyle}>{item.category}</Text>
-        </View> */}
-        <View style={{flexDirection: 'row', paddingVertical: 3}}>
-          <Image style={{width: 20, height: 20, resizeMode: 'contain'}} source={require('./images/icon_time.png')}/>
-          <Text style={styles.textStyle}>{item.time}</Text>
-        </View>
-        <View style={{flexDirection: 'row', paddingVertical: 3}}>
-          <Image style={{width: 20, height: 20, resizeMode: 'contain'}} source={require('./images/icon_objectType.png')}/>
-          <Text style={styles.textStyle}>{item.objectType}</Text>
-        </View>
-         <View style={{flexDirection: 'row', paddingVertical: 3, paddingHorizontal: 5, alignSelf: 'flex-end'}}>
-          <Text style={[styles.textStyle,{ marginHorizontal : 15 },  { backgroundColor: item.status == 'closed' ? 'green': 'yellow'}]}>{item.status}</Text>
-          <TouchableOpacity onPress={onPress}>
-            <View>
-              <Image style={{ width: 25, height: 25, resizeMode: 'cover' }}
-                source={require('./images/icon_delete.png')} />
-            </View>
-          </TouchableOpacity>
-        </View>
-        <Image style={{width: '100%', height: 150}} resizeMode='stretch' source={require('./images/flood_image.png')}/>
-      </View>
     );
   }
-  
-  return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView style={styles.container}>
 
-        <View style={{ backgroundColor: '#2F95D6', borderRadius: 7 }}>
-          <Text style={{ fontSize: 25, color: 'white', alignSelf: 'center' }}>{'Rescuers'}</Text>
-        </View>
+  render() {
 
-        <FlatList
-          data={DATA}
-          renderItem={({ item }) => <Item item={item} />}
-          keyExtractor={item => item.id}
-        />
-      </SafeAreaView>
-    </>
-  );
+    const AppContainer = createAppContainer(MainNavigator);
+
+    return (
+      <AppContainer />
+    );
+  }
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 0,
+  scrollView: {
+    backgroundColor: "lightgray",
   },
-  item: {
-    padding: 2,
-    marginVertical: 2,
-    marginHorizontal: 2,
-    borderColor : 'lightblue',
-    borderWidth : 1
-  },
-  title: {
-    fontSize: 32,
-  },
-imageStyle: {
-  backgroundColor: 'lightblue',
-  height: 100,
-  width: 100,
-  resizeMode: 'contain'
-},
-textStyle: {
-  padding: 2,
-  marginLeft: 2,
-  fontSize: 15,
-  color: '#000',
-  maxWidth: "100%",
-},
-rowItem: {
-  flexDirection: 'row',
-},
-checkMarkIconStyle: {
-  resizeMode: 'contain',
-  width: 25,
-  height: 25
-},
-});
+  body: {
+    backgroundColor: "white",
+  }
 
-export default App;
+});
