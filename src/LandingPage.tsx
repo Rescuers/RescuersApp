@@ -71,12 +71,6 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
         }
     }
 
-    componentDidUpdate(prevProps: LandingPageProps) {
-      if(this.props.result !== prevProps.result) {
-        
-      }
-    }
-
      onPress = () => {
         Alert.alert(
           "Confirm",
