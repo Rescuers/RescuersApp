@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.rescuers">
+  package="com.hexathon.ems">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -30,7 +30,7 @@
   <service android:name="io.invertase.firebase.messaging.RNFirebaseBackgroundMessagingService" />
 <meta-data
      android:name="com.google.android.geo.API_KEY"
-     android:value="AIzaSyAsDx3DB19GW8GnFdCMcDQXzWhya1yiYAo"/>
+     android:value="AIzaSyBolHXEsEONbvfKQFgV3t4vCsYZQxEA-Js"/>
 
     </application>
 

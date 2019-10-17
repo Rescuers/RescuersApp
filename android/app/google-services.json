@@ -1,35 +1,42 @@
 {
   "project_info": {
-    "project_number": "132828975842",
-    "firebase_url": "https://rescuers-1f447.firebaseio.com",
-    "project_id": "rescuers-1f447",
-    "storage_bucket": "rescuers-1f447.appspot.com"
+    "project_number": "244033195209",
+    "firebase_url": "https://ems-4-bce4c.firebaseio.com",
+    "project_id": "ems-4-bce4c",
+    "storage_bucket": "ems-4-bce4c.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:132828975842:android:52be4d0e3d378833f884bb",
+        "mobilesdk_app_id": "1:244033195209:android:c3c97eb90377bbfc88d118",
         "android_client_info": {
-          "package_name": "com.rescuers"
+          "package_name": "com.hexathon.ems"
         }
       },
       "oauth_client": [
         {
-          "client_id": "132828975842-jd8r71bqui19geo3q8j5fn95t9s27omn.apps.googleusercontent.com",
+          "client_id": "244033195209-bunlqu88mpjn05h0qk0m2nio8s51te20.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDS8CtRVRI0lG9AHACkCnzlAXEycKeNveM"
+          "current_key": "AIzaSyBolHXEsEONbvfKQFgV3t4vCsYZQxEA-Js"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "132828975842-jd8r71bqui19geo3q8j5fn95t9s27omn.apps.googleusercontent.com",
+              "client_id": "244033195209-bunlqu88mpjn05h0qk0m2nio8s51te20.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "244033195209-ukkc2r6bog5dhlbkqkqkq7knmaing7mp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hexathon.ems"
+              }
             }
           ]
         }

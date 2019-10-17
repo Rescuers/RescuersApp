@@ -15,7 +15,7 @@ import {
   AsyncStorage,
 } from 'react-native';
 
-import firebase from 'react-native-firebase';
+import firebase, { RNFirebase } from 'react-native-firebase';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
@@ -88,8 +88,7 @@ export default class App extends Component {
     * */
     this.notificationListener = firebase.notifications().onNotification((notification) => {
       console.log("Inside notificationListener::", notification);
-      const { title, body } = notification;
-      this.showAlert(title, body);
+      this.onNotificationRecieve(notification);
     });
 
     /*
@@ -97,8 +96,7 @@ export default class App extends Component {
     * */
     this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
       console.log("Inside notificationOpenedListener:", notificationOpen);
-      const { title, body } = notificationOpen.notification;
-      this.showAlert(title, body);
+      this.onNotificationRecieve(notificationOpen.notification);
     });
 
     /*
@@ -106,9 +104,8 @@ export default class App extends Component {
     * */
     const notificationOpen = await firebase.notifications().getInitialNotification();
     if (notificationOpen) {
-      console.log("Inside notificationOpen::", notificationOpen);
-      const { title, body } = notificationOpen.notification;
-      this.showAlert(title, body);
+      console.log("Inside notificationOpen:", notificationOpen);
+       this.onNotificationRecieve(notificationOpen.notification);
     }
     /*
     * Triggered for data only payload in foreground
@@ -120,20 +117,18 @@ export default class App extends Component {
     });
   }
 
-  showAlert = (title, body) => {
-    console.log('title', title);
-
-    console.log('body', body)
-    if(landingPageRef) {
-      landingPageRef.onNotificationReceive(JSON.parse(body))
+  onNotificationRecieve(notification: RNFirebase.notifications.Notification) {
+    let data = {}
+    if(notification.data) {
+      data = JSON.parse(notification.data['post_pk'])
+      console.log('from notification.data', data)
+    } else if(notification.body) {
+      data = JSON.parse(notification.body)
+      console.log('from notification.body', data)
     }
-    // Alert.alert(
-    //   title, body,
-    //   [
-    //     { text: 'OK', onPress: () => console.log('OK Pressed') },
-    //   ],
-    //   { cancelable: false },
-    // );
+    if(landingPageRef) {
+      landingPageRef.onNotificationReceive(data)
+    }
   }
 
   render() {

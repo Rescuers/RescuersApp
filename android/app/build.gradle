@@ -128,7 +128,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.rescuers"
+        applicationId "com.hexathon.ems"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -191,6 +191,7 @@ dependencies {
     implementation "com.google.firebase:firebase-auth:17.0.0"
 	implementation "com.google.firebase:firebase-messaging:18.0.0"
 	implementation "com.google.firebase:firebase-core:16.0.9"
+    implementation "com.google.firebase:firebase-storage:17.0.0"
     implementation 'me.leolin:ShortcutBadger:1.1.21@aar' // <-- Uses badge on Android
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
 

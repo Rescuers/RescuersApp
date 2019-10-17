@@ -36,7 +36,7 @@ export interface ResultModel {
   objectType: string,
   time: string,
   status: string,
-  imageURL: any
+  imageUrl: any
 }
 
 
@@ -44,37 +44,37 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
   constructor(props: LandingPageProps, state: LandingPageState) {
     super(props, state);
     this.state = {
-      results: [ {
-        id: 3,
-        location: 'Second Item',
-        category: 'Floods',
-        objectType: 'person',
-        time : new Date().toLocaleString(),
-        status: 'open',
-        imageURL: '../images/flood_image.png'
-      }]
+      results: []
     }
   }
 
   onNotificationReceive = (data: any) => {
-    let displayDate = new Date().toLocaleString();
 
-    let result: ResultModel = {
-      id: Math.floor((Math.random() * 1000) + 1),
-      location: data.location,
-      category: data.category,
-      objectType: data.objectType,
-      time: displayDate,
-      status: data.status,
-      imageURL: data.imageURL
-    }
+    const ref = fabfirebaseapp.storage().ref(data.imageUrl);
+    ref.getDownloadURL().then(_imageURL => {
 
-    console.log('result', result)
-    if (result.location) {
-      let results = this.state.results;
-      results.push(result)
-      this.setState({ results: results ? results : [] })
-    }
+      let result: ResultModel = {
+        id: Math.floor((Math.random() * 1000) + 1),
+        location: "123",
+        category: 'Floods',
+        objectType: "Person",
+        time: new Date().toLocaleString(),
+        status: "Open",
+        imageUrl: _imageURL
+      }
+  
+      console.log('result', result)
+  
+      if (result.location) {
+        let results = this.state.results;
+        results.push(result)
+        this.setState({ results: results ? results : [] })
+      }
+    }).catch(error => {
+      console.log('error', error)
+
+    })
+
   }
 
   onPress = (item) => {
@@ -98,16 +98,6 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
     );
   }
 
- componentDidMount() {
-    //   const ref = fabfirebaseapp.storage().ref("https://storage.googleapis.com/ems-4-bce4c.appspot.com/new_cool_image.jpg");
-    //   console.log('ref', ref)
-    //   ref.getDownloadURL().then(data => {
-    //      console.log('data', data)
-    //   }).catch(error => {
-    //     console.log('error', error)
-    //  })
- }
-
   render() {
     return (
       <>
@@ -117,19 +107,18 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
           <View style={{ backgroundColor: '#2F95D6', borderRadius: 7 }}>
             <Text style={{ fontSize: 25, color: 'white', alignSelf: 'center' }}>{'Rescuers'}</Text>
           </View>
-
-          <FlatList
+          {
+            this.state.results.length > 0 ?  
+            <FlatList
             data={this.state.results}
             renderItem={({ item }) => {
+              console.log('imageURL', item.imageUrl);
+
               return (<View style={styles.item}>
                 <View style={{ flexDirection: 'row', paddingVertical: 3 }}>
                   <Image style={{ width: 20, height: 20, resizeMode: 'contain' }} source={require('../images/icon_location.png')} />
                   <Text style={styles.textStyle}>{item.location}</Text>
                 </View>
-                {/* <View style={{flexDirection: 'row', paddingVertical: 3}}>
-                      <Image style={{width: 20, height: 20, resizeMode: 'contain'}} source={require('../images/icon_category.png')}/>
-                      <Text style={styles.textStyle}>{item.category}</Text>
-                    </View> */}
                 <View style={{ flexDirection: 'row', paddingVertical: 3 }}>
                   <Image style={{ width: 20, height: 20, resizeMode: 'contain' }} source={require('../images/icon_time.png')} />
                   <Text style={styles.textStyle}>{item.time}</Text>
@@ -150,12 +139,16 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
                     </View>
                   </TouchableOpacity>
                 </View>
-                <Image style={{ width: '100%', height: 150 }} resizeMode='stretch' source={{uri: item.imageURL}} />
+                <Image style={{ width: '100%', height: 150 }} resizeMode='stretch' 
+                  source={{uri: item.imageUrl }} />
               </View>)
 
             }}
             keyExtractor={item => item.id.toString()}
-          />
+          /> :
+          <Text style={{fontSize: 25}}>{'No rescues tasks assigned. You will receive notification and please stay tuned'}</Text>
+          }
+          
         </SafeAreaView>
       </>
     );
