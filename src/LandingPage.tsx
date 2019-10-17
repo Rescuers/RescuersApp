@@ -19,146 +19,166 @@ import {
   TouchableOpacity,
   Alert
 } from 'react-native';
+import * as fabfirebaseapp from 'react-native-firebase';
 
 export interface LandingPageProps {
-    result: ResultModel
+  result?: ResultModel
 }
 
 export interface LandingPageState {
-    results: ResultModel[]
+  results: ResultModel[]
 }
 
 export interface ResultModel {
+  id: number
   location: string,
   category: string,
   objectType: string,
   time: string,
-  status: string
+  status: string,
+  imageURL: any
 }
 
-const DATA = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      location: 'First Item',
-      category: 'Floods',
-      objectType: 'person',
-      time : '12/11/2019 10:10AM',
-      status: 'closed'
-    },
-    {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      location: 'Second Item',
-      category: 'Floods',
-      objectType: 'person',
-      time : '12/11/2019 10:10AM',
-      status: 'open'
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72',
-      location: 'Third Item',
-      category: 'Floods',
-      objectType: 'person',
-      time : '11/12/2019 10:10AM',
-      status: 'closed'
-    },
-  ];
 
 export default class LandingPage extends Component<LandingPageProps, LandingPageState> {
-    constructor(props: LandingPageProps, state: LandingPageState) {
-        super(props, state);
-        this.state = {
-          results : []
-        }
+  constructor(props: LandingPageProps, state: LandingPageState) {
+    super(props, state);
+    this.state = {
+      results: [ {
+        id: 3,
+        location: 'Second Item',
+        category: 'Floods',
+        objectType: 'person',
+        time : new Date().toLocaleString(),
+        status: 'open',
+        imageURL: '../images/flood_image.png'
+      }]
+    }
+  }
+
+  onNotificationReceive = (data: any) => {
+    let displayDate = new Date().toLocaleString();
+
+    let result: ResultModel = {
+      id: Math.floor((Math.random() * 1000) + 1),
+      location: data.location,
+      category: data.category,
+      objectType: data.objectType,
+      time: displayDate,
+      status: data.status,
+      imageURL: data.imageURL
     }
 
-     onPress = () => {
-        Alert.alert(
-          "Confirm",
-          "Do you really want to delete?",
-          [
-              {
-                  text: "Cancel",
-                  style: 'cancel',
-              },
-              {
-                  text: "Ok", 
-                  onPress: async () => {
-                    //TODO: delete the item from list
-                  }
-              },
-          ],
-          { cancelable: false },
-      );
-      }
+    console.log('result', result)
+    if (result.location) {
+      let results = this.state.results;
+      results.push(result)
+      this.setState({ results: results ? results : [] })
+    }
+  }
 
-      render() {
-      return (
-        <>
-          <StatusBar barStyle="dark-content" />
-          <SafeAreaView style={styles.container}>
-    
-            <View style={{ backgroundColor: '#2F95D6', borderRadius: 7 }}>
-              <Text style={{ fontSize: 25, color: 'white', alignSelf: 'center' }}>{'Rescuers'}</Text>
-            </View>
-    
-            <FlatList
-              data={DATA}
-              renderItem={({ item }) => {
-                  return (<View style={styles.item}>
-                    <View style={{flexDirection: 'row', paddingVertical: 3}}>
-                      <Image style={{width: 20, height: 20, resizeMode: 'contain'}} source={require('../images/icon_location.png')}/>
-                      <Text style={styles.textStyle}>{item.location}</Text>
-                    </View>
-                    {/* <View style={{flexDirection: 'row', paddingVertical: 3}}>
+  onPress = (item) => {
+    Alert.alert(
+      "Confirm",
+      "Do you really want to delete?",
+      [
+        {
+          text: "Cancel",
+          style: 'cancel',
+        },
+        {
+          text: "Ok",
+          onPress: async () => {
+            let results = this.state.results.filter(obj => obj.id !== item.id);
+            this.setState({ results })
+          }
+        },
+      ],
+      { cancelable: false },
+    );
+  }
+
+ componentDidMount() {
+    //   const ref = fabfirebaseapp.storage().ref("https://storage.googleapis.com/ems-4-bce4c.appspot.com/new_cool_image.jpg");
+    //   console.log('ref', ref)
+    //   ref.getDownloadURL().then(data => {
+    //      console.log('data', data)
+    //   }).catch(error => {
+    //     console.log('error', error)
+    //  })
+ }
+
+  render() {
+    return (
+      <>
+        <StatusBar barStyle="dark-content" />
+        <SafeAreaView style={styles.container}>
+
+          <View style={{ backgroundColor: '#2F95D6', borderRadius: 7 }}>
+            <Text style={{ fontSize: 25, color: 'white', alignSelf: 'center' }}>{'Rescuers'}</Text>
+          </View>
+
+          <FlatList
+            data={this.state.results}
+            renderItem={({ item }) => {
+              return (<View style={styles.item}>
+                <View style={{ flexDirection: 'row', paddingVertical: 3 }}>
+                  <Image style={{ width: 20, height: 20, resizeMode: 'contain' }} source={require('../images/icon_location.png')} />
+                  <Text style={styles.textStyle}>{item.location}</Text>
+                </View>
+                {/* <View style={{flexDirection: 'row', paddingVertical: 3}}>
                       <Image style={{width: 20, height: 20, resizeMode: 'contain'}} source={require('../images/icon_category.png')}/>
                       <Text style={styles.textStyle}>{item.category}</Text>
                     </View> */}
-                    <View style={{flexDirection: 'row', paddingVertical: 3}}>
-                      <Image style={{width: 20, height: 20, resizeMode: 'contain'}} source={require('../images/icon_time.png')}/>
-                      <Text style={styles.textStyle}>{item.time}</Text>
+                <View style={{ flexDirection: 'row', paddingVertical: 3 }}>
+                  <Image style={{ width: 20, height: 20, resizeMode: 'contain' }} source={require('../images/icon_time.png')} />
+                  <Text style={styles.textStyle}>{item.time}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', paddingVertical: 3 }}>
+                  <Image style={{ width: 20, height: 20, resizeMode: 'contain' }} source={require('../images/icon_objectType.png')} />
+                  <Text style={styles.textStyle}>{item.objectType}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3, paddingRight: 5 }}>
+                  <View style={{ flexDirection: 'row'}}>
+                    <View style={[styles.statusIndicator, { backgroundColor: item.status == 'closed' ? 'green' : 'yellow' }]}></View>
+                    <Text style={[styles.textStyle, { marginHorizontal: 15 }]}>{item.status}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => this.onPress(item)} style={{ alignSelf: 'center'}}>
+                    <View>
+                      <Image style={{ width: 25, height: 25, resizeMode: 'cover', }}
+                        source={require('../images/icon_delete.png')} />
                     </View>
-                    <View style={{flexDirection: 'row', paddingVertical: 3}}>
-                      <Image style={{width: 20, height: 20, resizeMode: 'contain'}} source={require('../images/icon_objectType.png')}/>
-                      <Text style={styles.textStyle}>{item.objectType}</Text>
-                    </View>
-                     <View style={{flexDirection: 'row', paddingVertical: 3, paddingHorizontal: 5, alignSelf: 'flex-end'}}>
-                      <Text style={[styles.textStyle,{ marginHorizontal : 15 },  { backgroundColor: item.status == 'closed' ? 'green': 'yellow'}]}>{item.status}</Text>
-                      <TouchableOpacity onPress={this.onPress}>
-                        <View>
-                          <Image style={{ width: 25, height: 25, resizeMode: 'cover' }}
-                            source={require('../images/icon_delete.png')} />
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                    <Image style={{width: '100%', height: 150}} resizeMode='stretch' source={require('../images/flood_image.png')}/>
-                  </View>)
-                  
-              }}
-              keyExtractor={item => item.id}
-            />
-          </SafeAreaView>
-        </>
-      );
-}
+                  </TouchableOpacity>
+                </View>
+                <Image style={{ width: '100%', height: 150 }} resizeMode='stretch' source={{uri: item.imageURL}} />
+              </View>)
+
+            }}
+            keyExtractor={item => item.id.toString()}
+          />
+        </SafeAreaView>
+      </>
+    );
+  }
 }
 
 
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      marginTop: 0,
-    },
-    item: {
-      padding: 2,
-      marginVertical: 2,
-      marginHorizontal: 2,
-      borderColor : 'lightblue',
-      borderWidth : 1
-    },
-    title: {
-      fontSize: 32,
-    },
+  container: {
+    flex: 1,
+    marginTop: 0,
+  },
+  item: {
+    padding: 2,
+    marginVertical: 2,
+    marginHorizontal: 2,
+    borderColor: 'lightblue',
+    borderWidth: 1
+  },
+  title: {
+    fontSize: 32,
+  },
   imageStyle: {
     backgroundColor: 'lightblue',
     height: 100,
@@ -180,4 +200,11 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25
   },
-  });
+  statusIndicator: {
+    borderRadius: 20,
+    height: 20,
+    width: 20,
+    backgroundColor: 'rgb(255,255,255)',
+    marginTop: 4,
+}
+});

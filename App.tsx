@@ -21,6 +21,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 
 import LandingPage from './src/LandingPage';
 
+let landingPageRef: LandingPage = undefined;
 
 const MainNavigator = createStackNavigator({
   LandingPage: { screen: LandingPage }
@@ -86,7 +87,7 @@ export default class App extends Component {
     * Triggered when a particular notification has been received in foreground
     * */
     this.notificationListener = firebase.notifications().onNotification((notification) => {
-      console.log("Inside onNotification::", notification);
+      console.log("Inside notificationListener::", notification);
       const { title, body } = notification;
       this.showAlert(title, body);
     });
@@ -95,7 +96,7 @@ export default class App extends Component {
     * If your app is in background, you can listen for when a notification is clicked / tapped / opened as follows:
     * */
     this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
-      console.log("Inside onNotificationOpened::", notificationOpen);
+      console.log("Inside notificationOpenedListener:", notificationOpen);
       const { title, body } = notificationOpen.notification;
       this.showAlert(title, body);
     });
@@ -105,7 +106,7 @@ export default class App extends Component {
     * */
     const notificationOpen = await firebase.notifications().getInitialNotification();
     if (notificationOpen) {
-      console.log("Inside onNotificationOpened::", notificationOpen);
+      console.log("Inside notificationOpen::", notificationOpen);
       const { title, body } = notificationOpen.notification;
       this.showAlert(title, body);
     }
@@ -113,20 +114,26 @@ export default class App extends Component {
     * Triggered for data only payload in foreground
     * */
     this.messageListener = firebase.messaging().onMessage((message) => {
-      console.log("Inside onNotificationOpened::", message);
+      console.log("Inside messageListener::", message);
       //process data message
       console.log(JSON.stringify(message));
     });
   }
 
   showAlert = (title, body) => {
-    Alert.alert(
-      title, body,
-      [
-        { text: 'OK', onPress: () => console.log('OK Pressed') },
-      ],
-      { cancelable: false },
-    );
+    console.log('title', title);
+
+    console.log('body', body)
+    if(landingPageRef) {
+      landingPageRef.onNotificationReceive(JSON.parse(body))
+    }
+    // Alert.alert(
+    //   title, body,
+    //   [
+    //     { text: 'OK', onPress: () => console.log('OK Pressed') },
+    //   ],
+    //   { cancelable: false },
+    // );
   }
 
   render() {
@@ -134,7 +141,9 @@ export default class App extends Component {
     const AppContainer = createAppContainer(MainNavigator);
 
     return (
-      <AppContainer />
+      <LandingPage ref={(_landingPageRef: any) => {
+        landingPageRef = _landingPageRef
+      }}/>
     );
   }
 };
