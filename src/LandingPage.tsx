@@ -245,8 +245,8 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
                   console.log('imageURL', item.imageUrl);
 
                   return (<View style={styles.item}>
-                    <Image style={{ width: '100%', height: 200, }} resizeMode='stretch'
-                      source={item.imageUrl} />
+                    <Image style={{ width: '100%', height: 200 }} resizeMode='stretch'
+                      source={{uri: item.imageUrl}} />
                     <View style={{ flexDirection: 'row', paddingVertical: 3, alignItems: 'center', paddingRight: 5 }}>
                       <View style={{ flexDirection: 'row' }}>
                         <TouchableHighlight onPress={() => this.onRoute(item)} style={{ flexDirection: 'row' }} activeOpacity={0.1} underlayColor={'#d5e9f6'}>
