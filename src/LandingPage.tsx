@@ -34,8 +34,10 @@ export interface LandingPageState {
 }
 
 export interface ResultModel {
-  id: number
+  id: number,
   location: string,
+  latitude: number,
+  longitude: number,
   category: string,
   objectType: string,
   time: string,
@@ -97,12 +99,14 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
 
   onNotificationReceive = async (data: any) => {
 
-    let locationText = await this.fetchLocationText(data);
+    let geoServiceResponse = await this.fetchLocation(data);
     let imageUrl = await this.fetchImageUrl(data);
 
     let result: ResultModel = {
       id: Math.floor((Math.random() * 1000) + 1),
-      location: locationText,
+      location: geoServiceResponse.isSuccess ? geoServiceResponse.address.formattedAddress : "",
+      latitude: geoServiceResponse.isSuccess ? geoServiceResponse.address.position.lat : -1,
+      longitude: geoServiceResponse.isSuccess ? geoServiceResponse.address.position.lng : -1,
       category: 'Floods',
       objectType: "Person",
       time: new Date().toLocaleString(),
@@ -152,8 +156,6 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
         , [{ text: 'OK', onPress: () => { } }], { cancelable: false });
       return;
     }
-
-    let values: string[] = item.location.split(',');
     getCurrentLocation().then((response: any) => {
       if (response.isSuccess) {
         console.log('response.address', response.address)
@@ -161,8 +163,8 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
         isGoogleMapsInstalled().then((isInstalled) => {
           if (isInstalled) {
             showLocation({
-              latitude: values[0],
-              longitude: values[1],
+              latitude: item.latitude,
+              longitude: item.longitude,
               sourceLatitude: lat,
               sourceLongitude: lng,
               app: 'google-maps'
@@ -196,11 +198,10 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
     return imageUrl;
   }
 
-  private async fetchLocationText(data: any) {
-    let locationText = '';
+  private async fetchLocation(data: any) {
     let values: string[] = data.location.split(',');
     if (!values || values.length < 2) {
-      return locationText
+      return { isSuccess: false, address: undefined, error: undefined }
     }
     let geoServiceResponse = await getLocationFromPosition({
       coords: {
@@ -208,11 +209,7 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
         longitude: parseInt(values[1])
       }
     });
-    if (geoServiceResponse.isSuccess) {
-      locationText = geoServiceResponse.address.formattedAddress;
-    }
-    console.log('address', geoServiceResponse);
-    return locationText;
+    return geoServiceResponse;
   }
 
   render() {
@@ -223,10 +220,10 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
 
           <View style={{ backgroundColor: '#2F95D6', borderRadius: 7 }}>
             <TouchableOpacity onPress={() => {
-              // this.onNotificationReceive({
-              //   imageUrl: "f08f2747-ad3f-4b24-a316-0a2a7410858b.jpg",
-              //   location: "17.402963,78.376705"
-              // } as ResultModel)
+              this.onNotificationReceive({
+                imageUrl: "f08f2747-ad3f-4b24-a316-0a2a7410858b.jpg",
+                location: "17.402963,78.376705"
+              } as ResultModel)
             }}>
               <Text style={{ fontSize: 25, color: 'white', alignSelf: 'center' }}>{'Rescuers'}</Text>
             </TouchableOpacity>
@@ -243,7 +240,7 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
                       <View style={{ flexDirection: 'row' }}>
                         <TouchableOpacity onPress={() => this.onRoute(item)} style={{ flexDirection: 'row' }}>
                           <Image style={{ width: 20, height: 20, resizeMode: 'contain', alignSelf: 'center' }} source={require('../images/icon_location.png')} />
-                          <Text style={styles.textStyle}>{item.location}</Text>
+                          <Text numberOfLines={2} style={styles.textStyle}>{item.location}</Text>
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -275,7 +272,7 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
                 keyExtractor={item => item.id.toString()}
               /> :
               <View style={{flex:1, alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{ fontSize: 25, textAlignVertical: 'center', textAlign: 'center' }}>{'No rescues tasks assigned. You will receive notification and please stay tuned'}</Text>
+                <Text style={{ fontSize: 25, textAlignVertical: 'center', textAlign: 'center' }}>{'No rescues tasks assigned. You will receive notification and please stay tuned.'}</Text>
               </View>
           }
 
@@ -313,7 +310,6 @@ const styles = StyleSheet.create({
     marginLeft: 2,
     fontSize: 15,
     color: '#000',
-    maxWidth: "100%",
   },
   rowItem: {
     flexDirection: 'row',
