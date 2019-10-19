@@ -18,7 +18,7 @@ import {
 import firebase, { RNFirebase } from 'react-native-firebase';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-
+import Sound from "react-native-sound";
 import LandingPage from './src/LandingPage';
 
 let landingPageRef: LandingPage = undefined;
@@ -62,6 +62,9 @@ export default class App extends Component {
   componentDidMount() {
     this.checkPermission();
     this.createNotificationListeners();
+
+    // Enable playback in silence mode
+    Sound.setCategory('Playback');
   }
 
   //Remove listeners allocated in createNotificationListeners()
@@ -105,7 +108,7 @@ export default class App extends Component {
     const notificationOpen = await firebase.notifications().getInitialNotification();
     if (notificationOpen) {
       console.log("Inside notificationOpen:", notificationOpen);
-       this.onNotificationRecieve(notificationOpen.notification);
+      this.onNotificationRecieve(notificationOpen.notification);
     }
     /*
     * Triggered for data only payload in foreground
@@ -118,18 +121,58 @@ export default class App extends Component {
   }
 
   onNotificationRecieve(notification: RNFirebase.notifications.Notification) {
+
+    this.playSound();
+
     let data = {}
-    if(notification.data) {
+    if (notification.data) {
       data = JSON.parse(notification.data['post_pk'])
       console.log('from notification.data', data)
-    } else if(notification.body) {
+    } else if (notification.body) {
       data = JSON.parse(notification.body)
       console.log('from notification.body', data)
     }
-    if(landingPageRef) {
+    if (landingPageRef) {
       landingPageRef.onNotificationReceive(data)
     }
   }
+
+  private playSound() {
+    try {
+      var alertSound = new Sound('alert.mp3', Sound.MAIN_BUNDLE, (error) => {
+        if (error) {
+          console.log('failed to load the sound', error);
+          return;
+        }
+        // loaded successfully
+        //console.log('duration in seconds: ' + alertSound.getDuration() + 'number of channels: ' + alertSound.getNumberOfChannels());
+
+        // Play the sound with an onEnd callback
+        alertSound.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          }
+          else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      });
+
+      // Stop the sound and rewind to the beginning
+      alertSound.stop(() => {
+        // Note: If you want to play a sound after stopping and rewinding it,
+        // it is important to call play() in a callback.
+        // alertSound.play();
+      });
+
+      // Release the audio player resource
+      alertSound.release()
+    }
+    catch (error) {
+      console.log('error occured when playing the alert sound.')
+    }
+  }
+
 
   render() {
 
@@ -138,7 +181,7 @@ export default class App extends Component {
     return (
       <LandingPage ref={(_landingPageRef: any) => {
         landingPageRef = _landingPageRef
-      }}/>
+      }} />
     );
   }
 };
