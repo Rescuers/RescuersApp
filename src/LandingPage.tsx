@@ -218,15 +218,16 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
         <StatusBar barStyle="dark-content" />
         <SafeAreaView style={styles.container}>
 
-          <View style={{ backgroundColor: '#2F95D6', borderRadius: 7 }}>
-            <TouchableOpacity onPress={() => {
+          <View style={{ backgroundColor: '#2F95D6'}}>
+            {/* <TouchableOpacity onPress={() => {
               // this.onNotificationReceive({
               //   imageUrl: "f08f2747-ad3f-4b24-a316-0a2a7410858b.jpg",
               //   location: "17.402963,78.376705"
               // } as ResultModel)
             }}>
-              <Text style={{ fontSize: 25, color: 'white', alignSelf: 'center' }}>{'Rescuers'}</Text>
-            </TouchableOpacity>
+             
+            </TouchableOpacity> */}
+            <Text style={{ fontSize: 25, color: 'white', alignSelf: 'center' }}>{'Rescuers'}</Text>
           </View>
           {
             this.state.results.length > 0 ?
