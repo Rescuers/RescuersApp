@@ -195,6 +195,7 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
       imageUrl = await ref.getDownloadURL();
     }
     catch (error) {
+      console.log('image failed to load from firebase', error)
     }
     return imageUrl;
   }
