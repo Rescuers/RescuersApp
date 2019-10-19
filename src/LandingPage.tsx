@@ -17,7 +17,8 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
-  Alert
+  Alert,
+  TouchableHighlight
 } from 'react-native';
 import * as fabfirebaseapp from 'react-native-firebase';
 import Geocoder from 'react-native-geocoder';
@@ -110,7 +111,7 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
       category: 'Floods',
       objectType: "Person",
       time: new Date().toLocaleString(),
-      status: "Open",
+      status: "Pending",
       imageUrl: imageUrl
     }
 
@@ -205,8 +206,8 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
     }
     let geoServiceResponse = await getLocationFromPosition({
       coords: {
-        latitude: parseInt(values[0]),
-        longitude: parseInt(values[1])
+        latitude: parseFloat(values[0]),
+        longitude: parseFloat(values[1])
       }
     });
     return geoServiceResponse;
@@ -218,7 +219,13 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
         <StatusBar barStyle="dark-content" />
         <SafeAreaView style={styles.container}>
 
-          <View style={{ backgroundColor: '#2F95D6'}}>
+           <View style={{ height : 110, flex: 0, flexDirection: 'row'}}>
+             <View style={{flex:0.3, justifyContent: 'center' }}>
+               <Image style={{height: 100, width: 100, alignSelf: 'center'}} source={require('../images/icon_logo.png')}/>
+             </View>
+              <View style={{flex:0.7, justifyContent: 'center', alignItems: 'flex-start'}}>
+                <Text style={{ fontSize: 27, color: 'black', fontFamily: 'sans-serif-condensed' }}>{'Rescuers'}</Text>
+             </View>
             {/* <TouchableOpacity onPress={() => {
               // this.onNotificationReceive({
               //   imageUrl: "f08f2747-ad3f-4b24-a316-0a2a7410858b.jpg",
@@ -227,7 +234,7 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
             }}>
              
             </TouchableOpacity> */}
-            <Text style={{ fontSize: 25, color: 'white', alignSelf: 'center' }}>{'Rescuers'}</Text>
+            {/* <Text style={{ fontSize: 25, color: 'white', alignSelf: 'center' }}>{'Rescuers'}</Text> */}
           </View>
           {
             this.state.results.length > 0 ?
@@ -237,43 +244,47 @@ export default class LandingPage extends Component<LandingPageProps, LandingPage
                   console.log('imageURL', item.imageUrl);
 
                   return (<View style={styles.item}>
+                    <Image style={{ width: '100%', height: 200, }} resizeMode='stretch'
+                      source={item.imageUrl} />
                     <View style={{ flexDirection: 'row', paddingVertical: 3, alignItems: 'center', paddingRight: 5 }}>
                       <View style={{ flexDirection: 'row' }}>
-                        <TouchableOpacity onPress={() => this.onRoute(item)} style={{ flexDirection: 'row' }}>
-                          <Image style={{ width: 20, height: 20, resizeMode: 'contain', alignSelf: 'center' }} source={require('../images/icon_location.png')} />
-                          <Text numberOfLines={2} style={styles.textStyle}>{item.location}</Text>
-                        </TouchableOpacity>
+                        <TouchableHighlight onPress={() => this.onRoute(item)} style={{ flexDirection: 'row' }} activeOpacity={0.1} underlayColor={'#d5e9f6'}>
+                          <View  style={{ flexDirection: 'row', flex:1 }}>
+                            <Image style={{ width: 30, height: 30, resizeMode: 'contain' }} source={require('../images/icon_location.png')} />
+                            <Text style={[styles.textStyle, {fontWeight: 'bold', fontFamily: 'verdana'}]}>{item.location}</Text>
+                          </View>
+                        </TouchableHighlight>
                       </View>
                     </View>
-                    <View style={{ flexDirection: 'row', paddingVertical: 3 }}>
-                      <Image style={{ width: 20, height: 20, resizeMode: 'contain' }} source={require('../images/icon_time.png')} />
+                    <View style={{height: 1, backgroundColor: '#d4d6d9'}}/>
+                    <View style={{ flexDirection: 'row', paddingVertical: 3 , marginVertical: 5}}>
+                      <Image style={{ width: 30, height: 30, resizeMode: 'contain' }} source={require('../images/icon_time.png')} />
                       <Text style={styles.textStyle}>{item.time}</Text>
                     </View>
+                    <View style={{height: 1, backgroundColor: '#d4d6d9'}}/>
                     {/* <View style={{ flexDirection: 'row', paddingVertical: 3 }}>
                   <Image style={{ width: 20, height: 20, resizeMode: 'contain' }} source={require('../images/icon_objectType.png')} />
                   <Text style={styles.textStyle}>{item.objectType}</Text>
                 </View> */}
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3, paddingRight: 5 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3, paddingRight: 5, marginVertical: 5 }}>
                       <View style={{ flexDirection: 'row' }}>
-                        <View style={[styles.statusIndicator, { backgroundColor: item.status == 'closed' ? 'green' : 'yellow' }]}></View>
+                        <Image style={{ width: 30, height: 30, resizeMode: 'contain' }} source={require('../images/icon_status.png')} />
                         <Text style={[styles.textStyle, { marginHorizontal: 15 }]}>{item.status}</Text>
                       </View>
                       <TouchableOpacity onPress={() => this.onPress(item)} style={{ alignSelf: 'center' }}>
                         <View>
-                          <Image style={{ width: 20, height: 20, resizeMode: 'cover', }}
+                          <Image style={{ width: 18, height: 18, resizeMode: 'cover', }}
                             source={require('../images/icon_delete.png')} />
                         </View>
                       </TouchableOpacity>
                     </View>
-                    <Image style={{ width: '100%', height: 200 }} resizeMode='stretch'
-                      source={{ uri: item.imageUrl }} />
                   </View>)
 
                 }}
                 keyExtractor={item => item.id.toString()}
               /> :
               <View style={{flex:1, alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{ fontSize: 25, textAlignVertical: 'center', textAlign: 'center' }}>{'No rescues tasks assigned. You will receive notification and please stay tuned.'}</Text>
+                <Text style={{ fontSize: 25, textAlignVertical: 'center', textAlign: 'center', fontFamily: 'sans-serif-condensed' }}>{'No Job assigned.'}</Text>
               </View>
           }
 
@@ -291,11 +302,13 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   item: {
-    padding: 2,
     marginVertical: 2,
-    marginHorizontal: 2,
-    borderColor: 'lightblue',
-    borderWidth: 1
+    paddingVertical: 2,
+    marginHorizontal: 6,
+    paddingHorizontal: 3,
+    borderColor: '#d4d6d9',
+    borderWidth: 2,
+    borderRadius: 4
   },
   title: {
     fontSize: 32,
@@ -311,6 +324,7 @@ const styles = StyleSheet.create({
     marginLeft: 2,
     fontSize: 15,
     color: '#000',
+    fontFamily: 'sans-serif-thin'
   },
   rowItem: {
     flexDirection: 'row',
